@@ -28,7 +28,7 @@ export default function Footer() {
           <Link to="/contact" className="hover:text-yellow-400 transition-colors">
             Contact
           </Link>
-          <Link to="/privacy" className="hover:text-yellow-400 transition-colors">
+          <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">
             Privacy Policy
           </Link>
         </div>
@@ -37,16 +37,36 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold text-lg mb-3">Follow Us</h3>
           <div className="flex space-x-4">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="hover:text-blue-400 text-xl">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-blue-400 text-xl"
+            >
               <FaFacebook />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-pink-400 text-xl">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-pink-400 text-xl"
+            >
               <FaInstagram />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="hover:text-sky-400 text-xl">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-sky-400 text-xl"
+            >
               <FaTwitter />
             </a>
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-gray-400 text-xl">
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-gray-400 text-xl"
+            >
               <FaGithub />
             </a>
           </div>

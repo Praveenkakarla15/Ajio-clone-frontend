@@ -9,7 +9,8 @@ function Wishlist() {
   const wishlist = useSelector((state) => state.wishlist.items);
   const dispatch = useDispatch();
 
-  if (wishlist.length === 0) {
+  // Empty Wishlist
+  if (!wishlist || wishlist.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <p className="text-center text-gray-500 text-lg">
@@ -22,28 +23,36 @@ function Wishlist() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Wishlist</h2>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {wishlist.map((product) => (
           <div
             key={product.id}
-            className="bg-white shadow-lg rounded-2xl p-4 flex flex-col items-center hover:shadow-xl transition"
+            className="bg-white shadow-md hover:shadow-xl rounded-2xl p-4 flex flex-col items-center transition"
           >
+            {/* Product Image */}
             <img
               src={product.image}
               alt={product.title}
               className="h-40 w-full object-contain mb-4"
+              loading="lazy"
             />
-            <h3 className="text-sm font-semibold text-gray-700 text-center truncate">
+
+            {/* Title */}
+            <h3 className="text-sm font-semibold text-gray-700 text-center line-clamp-2">
               {product.title}
             </h3>
+
+            {/* Price */}
             <p className="text-blue-600 font-bold mt-2">${product.price}</p>
 
+            {/* Actions */}
             <div className="flex gap-2 mt-4 w-full justify-center">
               <button
                 onClick={() => dispatch(removeFromWishlist(product.id))}
                 className="flex items-center gap-2 bg-pink-500 text-white px-3 py-1.5 rounded-xl hover:bg-pink-600 transition"
               >
-                <FaTrash /> Remove
+                <FaTrash size={14} /> Remove
               </button>
 
               <Link

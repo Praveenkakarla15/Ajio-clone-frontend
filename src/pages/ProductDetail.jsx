@@ -4,16 +4,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchSingleProduct } from "../redux/slices/productSlice.js";
 import { addToCart } from "../redux/slices/cartSlice.js";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../redux/slices/wishlistSlice.js";
 
 function ProductDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { selectedProduct, status } = useSelector((state) => state.products);
+
+  const { selectedProduct, status, error } = useSelector(
+    (state) => state.products
+  );
+  const cartItems = useSelector((state) => state.cart.items);
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   useEffect(() => {
-    dispatch(fetchSingleProduct(id));
+    if (id) dispatch(fetchSingleProduct(id));
   }, [dispatch, id]);
 
+  // Loading
   if (status === "loading" || !selectedProduct) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -21,6 +31,25 @@ function ProductDetail() {
       </div>
     );
   }
+
+  // Error state
+  if (status === "failed" || error) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <p className="text-red-500 text-lg">
+          Failed to load product. Please try again.
+        </p>
+      </div>
+    );
+  }
+
+  const inCart = cartItems.some(
+    (item) => item.id === selectedProduct.id || item._id === selectedProduct._id
+  );
+
+  const inWishlist = wishlistItems.some(
+    (item) => item.id === selectedProduct.id || item._id === selectedProduct._id
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-10">
@@ -30,6 +59,7 @@ function ProductDetail() {
           src={selectedProduct.image}
           alt={selectedProduct.title}
           className="h-80 w-full md:w-96 object-contain rounded-lg shadow-lg"
+          loading="lazy"
         />
       </div>
 
@@ -43,11 +73,29 @@ function ProductDetail() {
           ${selectedProduct.price}
         </p>
 
+        {/* Add to Cart Button */}
         <button
-          onClick={() => dispatch(addToCart(selectedProduct))}
-          className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow hover:bg-blue-700 transition"
+          onClick={() => !inCart && dispatch(addToCart(selectedProduct))}
+          disabled={inCart}
+          className={`w-full md:w-auto px-6 py-3 font-semibold rounded-xl shadow transition ${
+            inCart
+              ? "bg-gray-400 cursor-not-allowed text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
         >
-          Add to Cart
+          {inCart ? "Already in Cart" : "Add to Cart"}
+        </button>
+
+        {/* Wishlist Button */}
+        <button
+          onClick={() =>
+            inWishlist
+              ? dispatch(removeFromWishlist(selectedProduct.id || selectedProduct._id))
+              : dispatch(addToWishlist(selectedProduct))
+          }
+          className="mt-3 w-full md:w-auto px-6 py-3 border border-pink-500 text-pink-500 font-semibold rounded-xl hover:bg-pink-50 transition"
+        >
+          {inWishlist ? "Remove from Wishlist ❤️" : "Add to Wishlist 🤍"}
         </button>
       </div>
     </div>

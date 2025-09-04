@@ -20,11 +20,6 @@ function Home() {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  if (status === "loading")
-    return (
-      <p className="text-center mt-10 text-gray-500 text-lg">Loading products...</p>
-    );
-
   // Handle search input
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -40,6 +35,13 @@ function Home() {
       p.title.toLowerCase().includes(value.toLowerCase())
     );
     setSuggestions(matches.slice(0, 5)); // show top 5 suggestions
+  };
+
+  // Handle Enter key (auto navigate to first suggestion)
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && suggestions.length > 0) {
+      handleSuggestionClick(suggestions[0].id || suggestions[0]._id);
+    }
   };
 
   // When clicking a suggestion
@@ -65,6 +67,31 @@ function Home() {
       return 0;
     });
 
+  // Loading state with skeletons
+  if (status === "loading") {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-gray-200 animate-pulse rounded-lg h-60"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (status === "failed") {
+    return (
+      <p className="text-center mt-10 text-red-500 text-lg">
+        Failed to load products. Please try again later.
+      </p>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Search + Filter + Sort */}
@@ -76,15 +103,16 @@ function Home() {
             placeholder="Search products..."
             value={search}
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
             className="w-full px-4 py-2 border rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           {suggestions.length > 0 && (
             <ul className="absolute bg-white border w-full mt-1 rounded shadow-lg z-50 max-h-60 overflow-auto">
               {suggestions.map((item) => (
                 <li
-                  key={item.id}
+                  key={item.id || item._id}
                   className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
-                  onClick={() => handleSuggestionClick(item.id)}
+                  onClick={() => handleSuggestionClick(item.id || item._id)}
                 >
                   {item.title}
                 </li>
@@ -131,7 +159,10 @@ function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id || product._id}
+              product={product}
+            />
           ))
         ) : (
           <p className="col-span-full text-center text-gray-500 text-lg">

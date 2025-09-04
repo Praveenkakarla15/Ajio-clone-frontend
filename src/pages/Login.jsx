@@ -1,23 +1,27 @@
-// src/pages/Login.jsx
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginSuccess } from "../redux/slices/authSlice.js";
+import { loginUser } from "../redux/slices/authSlice.js";
 
 function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { token, status, error } = useSelector((state) => state.auth);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (token) navigate("/");
+  }, [token, navigate]);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username.trim() && password.trim()) {
-      dispatch(loginSuccess({ username }));
-      navigate("/"); 
-    } else {
-      alert("Please enter username and password");
+    if (!email.trim() || !password.trim()) {
+      alert("Please enter email and password");
+      return;
     }
+    dispatch(loginUser({ email, password }));
   };
 
   return (
@@ -30,12 +34,12 @@ function Login() {
           Welcome Back
         </h2>
 
-        <label className="block mb-2 font-medium text-gray-700">Username</label>
+        <label className="block mb-2 font-medium text-gray-700">Email</label>
         <input
-          type="text"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Enter email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full border border-gray-300 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
 
@@ -51,9 +55,14 @@ function Login() {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-3 rounded-2xl font-semibold hover:bg-blue-700 transition"
+          disabled={status === "loading"}
         >
-          Login
+          {status === "loading" ? "Logging in..." : "Login"}
         </button>
+
+        {status === "failed" && (
+          <p className="text-red-500 mt-2 text-center">{error}</p>
+        )}
 
         <p className="mt-4 text-center text-sm text-gray-500">
           Don’t have an account?{" "}

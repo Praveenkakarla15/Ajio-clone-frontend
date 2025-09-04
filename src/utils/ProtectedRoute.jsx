@@ -1,17 +1,30 @@
-// src/utils/ProtectedRoute.jsx
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { logout } from "../redux/slices/authSlice.js";
+import jwtDecode from "jwt-decode"; // ✅ correct import
 
 function ProtectedRoute({ children }) {
-  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
 
-  // If user is not logged in, redirect to login page
-  if (!user) {
+  if (!token) return <Navigate to="/login" replace />;
+
+  try {
+    const decoded = jwtDecode(token);
+    const isExpired = decoded.exp * 1000 < Date.now();
+
+    if (isExpired) {
+      dispatch(logout());
+      alert("Session expired, please login again");
+      return <Navigate to="/login" replace />;
+    }
+  } catch (error) {
+    console.error("Invalid token:", error);
+    dispatch(logout());
     return <Navigate to="/login" replace />;
   }
 
-  // Render children if user is logged in
   return children;
 }
 

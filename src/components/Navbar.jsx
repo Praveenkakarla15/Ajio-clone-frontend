@@ -1,8 +1,17 @@
 // src/components/Navbar.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { FaHome, FaShoppingCart, FaHeart, FaUser, FaBars, FaTimes } from "react-icons/fa";
+import { clearCart } from "../redux/slices/cartSlice.js";
+import { clearWishlist } from "../redux/slices/wishlistSlice.js";
+import {
+  FaHome,
+  FaShoppingCart,
+  FaHeart,
+  FaUser,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 import { logout } from "../redux/slices/authSlice.js";
 
 function Navbar() {
@@ -10,19 +19,31 @@ function Navbar() {
   const wishlistItems = useSelector((state) => state.wishlist?.items || []);
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     setMenuOpen(false);
+    dispatch(clearCart()); // clears cart state + localStorage
+    dispatch(clearWishlist()); // clears wishlist state + localStorage
+    navigate("/login");
   };
+
+  // Count items correctly using _id or id
+  const cartCount = cartItems.reduce(
+    (total, item) => total + (item.quantity || 1),
+    0
+  );
+  const wishlistCount = wishlistItems.length;
 
   return (
     <nav className="bg-gradient-to-r from-indigo-600 to-blue-500 shadow-md px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
       {/* Brand */}
       <Link
         to="/"
+        onClick={() => setMenuOpen(false)}
         className="text-xl sm:text-2xl font-extrabold text-white tracking-wide hover:scale-105 transition-transform"
       >
         AJIO <span className="text-yellow-300">Clone</span>
@@ -56,9 +77,9 @@ function Navbar() {
           className="flex items-center gap-2 text-white hover:text-yellow-300 transition-colors relative"
         >
           <FaShoppingCart /> Cart
-          {cartItems.length > 0 && (
+          {cartCount > 0 && (
             <span className="absolute -top-2 -right-3 bg-yellow-300 text-blue-900 text-xs font-bold px-2 py-0.5 rounded-full">
-              {cartItems.length}
+              {cartCount}
             </span>
           )}
         </Link>
@@ -69,9 +90,9 @@ function Navbar() {
           className="flex items-center gap-2 text-white hover:text-yellow-300 transition-colors relative"
         >
           <FaHeart /> Wishlist
-          {wishlistItems.length > 0 && (
+          {wishlistCount > 0 && (
             <span className="absolute -top-2 -right-3 bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              {wishlistItems.length}
+              {wishlistCount}
             </span>
           )}
         </Link>
@@ -79,7 +100,7 @@ function Navbar() {
         {user ? (
           <div className="flex items-center gap-2 text-white">
             <FaUser className="text-lg" />
-            <span className="font-semibold">{user.username}</span>
+            <span className="font-semibold">{user.username || user.email}</span>
             <button
               onClick={handleLogout}
               className="ml-2 px-3 py-1 text-xs bg-red-500 rounded-full hover:bg-red-600 transition"

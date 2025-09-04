@@ -10,6 +10,9 @@ import Wishlist from "./pages/Wishlist.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import ProtectedRoute from "./utils/ProtectedRoute.jsx";
+import About from "./pages/about.jsx";
+import Contact from "./pages/contact.jsx";
+import PrivacyPolicy from "./pages/privacypolicy.jsx";
 
 function App() {
   return (
@@ -20,10 +23,16 @@ function App() {
       {/* Main Content Area */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
-          {/* Protected routes */}
+          {/* Protected Routes */}
           <Route
             path="/cart"
             element={
@@ -31,7 +40,6 @@ function App() {
                 <Cart />
               </ProtectedRoute>
             }
-            
           />
           <Route
             path="/wishlist"
@@ -41,10 +49,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Auth routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
 
