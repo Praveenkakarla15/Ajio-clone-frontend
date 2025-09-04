@@ -12,7 +12,7 @@ import Signup from "./pages/Signup.jsx";
 import ProtectedRoute from "./utils/ProtectedRoute.jsx";
 import About from "./pages/about.jsx";
 import Contact from "./pages/contact.jsx";
-import PrivacyPolicy from "./pages/privacypolicy.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 
 function App() {
   return (
