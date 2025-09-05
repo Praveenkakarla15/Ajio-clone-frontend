@@ -1,72 +1,62 @@
 // src/pages/Wishlist.jsx
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { removeFromWishlist } from "../redux/slices/wishlistSlice.js";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWishlist, removeWishlistItem } from "../redux/slices/wishlistSlice";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
 
-function Wishlist() {
-  const wishlist = useSelector((state) => state.wishlist.items);
+export default function Wishlist() {
   const dispatch = useDispatch();
+  const { items } = useSelector((state) => state.wishlist);
 
-  // Empty Wishlist
-  if (!wishlist || wishlist.length === 0) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <p className="text-center text-gray-500 text-lg">
-          Your wishlist is empty ❤️
-        </p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    dispatch(fetchWishlist());
+  }, [dispatch]);
+
+  const handleRemove = (id) => {
+    dispatch(removeWishlistItem(id));
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Wishlist</h2>
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">My Wishlist</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {wishlist.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white shadow-md hover:shadow-xl rounded-2xl p-4 flex flex-col items-center transition"
-          >
-            {/* Product Image */}
-            <img
-              src={product.image}
-              alt={product.title}
-              className="h-40 w-full object-contain mb-4"
-              loading="lazy"
-            />
-
-            {/* Title */}
-            <h3 className="text-sm font-semibold text-gray-700 text-center line-clamp-2">
-              {product.title}
-            </h3>
-
-            {/* Price */}
-            <p className="text-blue-600 font-bold mt-2">${product.price}</p>
-
-            {/* Actions */}
-            <div className="flex gap-2 mt-4 w-full justify-center">
-              <button
-                onClick={() => dispatch(removeFromWishlist(product.id))}
-                className="flex items-center gap-2 bg-pink-500 text-white px-3 py-1.5 rounded-xl hover:bg-pink-600 transition"
+      {items.length === 0 ? (
+        <p className="text-gray-600 text-lg">Your wishlist is empty.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((item) => {
+            const product = item.product || item;
+            return (
+              <div
+                key={product._id}
+                className="border rounded-lg shadow-sm p-4 bg-white hover:shadow-md transition-shadow duration-200"
               >
-                <FaTrash size={14} /> Remove
-              </button>
-
-              <Link
-                to={`/product/${product.id}`}
-                className="px-3 py-1.5 border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition"
-              >
-                View
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-44 object-cover rounded-md"
+                />
+                <h3 className="mt-3 text-lg font-semibold text-gray-900">{product.name}</h3>
+                <p className="text-gray-600 mt-1 text-sm">${product.price}</p>
+                <div className="flex justify-between mt-4">
+                  <Link
+                    to={`/product/${product._id}`}
+                    className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors duration-200"
+                  >
+                    View
+                  </Link>
+                  <button
+                    onClick={() => handleRemove(product._id)}
+                    className="px-3 py-1.5 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition-colors duration-200"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
-
-export default Wishlist;

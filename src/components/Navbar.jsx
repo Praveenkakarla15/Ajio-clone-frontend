@@ -1,9 +1,8 @@
-// src/components/Navbar.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearCart } from "../redux/slices/cartSlice.js";
-import { clearWishlist } from "../redux/slices/wishlistSlice.js";
+import { clearCartBackend } from "../redux/slices/cartSlice.js";
+import { clearWishlistBackend } from "../redux/slices/wishlistSlice.js";
 import {
   FaHome,
   FaShoppingCart,
@@ -23,15 +22,18 @@ function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // First clear backend + redux state
+    await dispatch(clearCartBackend());
+    await dispatch(clearWishlistBackend());
+
+    // Then clear auth
     dispatch(logout());
     setMenuOpen(false);
-    dispatch(clearCart()); // clears cart state + localStorage
-    dispatch(clearWishlist()); // clears wishlist state + localStorage
     navigate("/login");
   };
 
-  // Count items correctly using _id or id
+  // Count items correctly
   const cartCount = cartItems.reduce(
     (total, item) => total + (item.quantity || 1),
     0

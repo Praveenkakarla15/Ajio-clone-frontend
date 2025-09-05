@@ -3,17 +3,17 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchSingleProduct } from "../redux/slices/productSlice.js";
-import { addToCart } from "../redux/slices/cartSlice.js";
+import { addCartItem } from "../redux/slices/cartSlice.js";
 import {
-  addToWishlist,
-  removeFromWishlist,
+  addWishlistItem,
+  removeWishlistItem,
 } from "../redux/slices/wishlistSlice.js";
 
 function ProductDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { selectedProduct, status, error } = useSelector(
+  const { selectedProduct, productStatus, error } = useSelector(
     (state) => state.products
   );
   const cartItems = useSelector((state) => state.cart.items);
@@ -24,7 +24,7 @@ function ProductDetail() {
   }, [dispatch, id]);
 
   // Loading
-  if (status === "loading" || !selectedProduct) {
+  if (productStatus === "loading" || !selectedProduct) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <p className="text-gray-500 text-lg">Loading product...</p>
@@ -33,7 +33,7 @@ function ProductDetail() {
   }
 
   // Error state
-  if (status === "failed" || error) {
+  if (productStatus === "failed" || error) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <p className="text-red-500 text-lg">
@@ -43,13 +43,29 @@ function ProductDetail() {
     );
   }
 
+  const productId = selectedProduct._id;
+
   const inCart = cartItems.some(
-    (item) => item.id === selectedProduct.id || item._id === selectedProduct._id
+    (item) => String(item._id || item.product) === String(productId)
   );
 
-  const inWishlist = wishlistItems.some(
-    (item) => item.id === selectedProduct.id || item._id === selectedProduct._id
-  );
+  const inWishlist = wishlistItems.some((item) => {
+    if (!item) return false;
+    const pid = item.product?._id || item.product || item._id;
+    return String(pid) === String(productId);
+  });
+
+  const handleAddToCart = () => {
+    if (!inCart) dispatch(addCartItem({ productId, quantity: 1 }));
+  };
+
+  const handleWishlistToggle = () => {
+    if (inWishlist) {
+      dispatch(removeWishlistItem(productId));
+    } else {
+      dispatch(addWishlistItem({ productId }));
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-10">
@@ -75,7 +91,7 @@ function ProductDetail() {
 
         {/* Add to Cart Button */}
         <button
-          onClick={() => !inCart && dispatch(addToCart(selectedProduct))}
+          onClick={handleAddToCart}
           disabled={inCart}
           className={`w-full md:w-auto px-6 py-3 font-semibold rounded-xl shadow transition ${
             inCart
@@ -88,11 +104,7 @@ function ProductDetail() {
 
         {/* Wishlist Button */}
         <button
-          onClick={() =>
-            inWishlist
-              ? dispatch(removeFromWishlist(selectedProduct.id || selectedProduct._id))
-              : dispatch(addToWishlist(selectedProduct))
-          }
+          onClick={handleWishlistToggle}
           className="mt-3 w-full md:w-auto px-6 py-3 border border-pink-500 text-pink-500 font-semibold rounded-xl hover:bg-pink-50 transition"
         >
           {inWishlist ? "Remove from Wishlist ❤️" : "Add to Wishlist 🤍"}

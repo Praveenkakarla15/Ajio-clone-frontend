@@ -1,14 +1,14 @@
 // src/redux/slices/productSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from "../../utils/axios.js"; // Vite-ready axios instance
+import API from "../../utils/axios.js";
 
-// Fetch all products from backend
+// Fetch all products
 export const fetchProducts = createAsyncThunk(
   "products/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await API.get("/products"); // GET /api/products
-      return res.data.data || res.data; // handle both { data: [...] } or [...]
+      const res = await API.get("/products");
+      return res.data.data || res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || err.message || "Failed to fetch products"
@@ -17,12 +17,12 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
-// Fetch single product by id from backend
+// Fetch single product
 export const fetchSingleProduct = createAsyncThunk(
   "products/fetchOne",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await API.get(`/products/${id}`); // GET /api/products/:id
+      const res = await API.get(`/products/${id}`);
       return res.data.data || res.data;
     } catch (err) {
       return rejectWithValue(
@@ -37,18 +37,19 @@ const productSlice = createSlice({
   initialState: {
     products: [],
     selectedProduct: null,
-    status: "idle",        // for all products
-    productStatus: "idle", // for single product
+    status: "idle",        // For all products
+    productStatus: "idle", // For single product
     error: null,
   },
   reducers: {
     clearSelectedProduct: (state) => {
       state.selectedProduct = null;
+      state.productStatus = "idle";
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all products
+      // All products
       .addCase(fetchProducts.pending, (state) => {
         state.status = "loading";
       })
@@ -61,7 +62,7 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch single product
+      // Single product
       .addCase(fetchSingleProduct.pending, (state) => {
         state.productStatus = "loading";
       })
